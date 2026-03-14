@@ -1,0 +1,53 @@
+### PO5 — Проверка сценария JWT (access + refresh)
+### Запуск: 1) mvn spring-boot:run 2) POST /api/register 3) Выполнять запросы по порядку
+
+@baseUrl = http://localhost:8080
+
+### 0. Регистрация (если пользователь ещё не создан)
+POST {{baseUrl}}/api/register
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "SecurePass1!",
+  "email": "admin@example.com",
+  "role": "ADMIN"
+}
+
+### --- Шаг 1. POST /auth/login — получить access и refresh ---
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "SecurePass1!"
+}
+
+### --- Шаг 2. С access-токеном обратиться к защищённому эндпоинту ---
+# Вставьте accessToken из ответа шага 1
+GET {{baseUrl}}/api/customers
+Authorization: Bearer {{accessToken}}
+
+### --- Шаг 3. POST /auth/refresh — получить новую пару токенов ---
+# Вставьте refreshToken из ответа шага 1
+# @name refresh
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### --- Шаг 4. Повторно вызвать /auth/refresh со СТАРЫМ refresh-токеном ---
+# Должен вернуться 401/403 — старый refresh уже использован
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{oldRefreshToken}}"
+}
+
+### --- Шаг 5. Проверка статусов сессий в БД ---
+-- Выполните в pgAdmin / Query Tool:
+-- SELECT id, user_id, refresh_token_id, status, created_at, expires_at FROM user_sessions;

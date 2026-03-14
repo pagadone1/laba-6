@@ -1,0 +1,259 @@
+### Car Service API - HTTP Request Collection
+### Base URL: http://localhost:8080
+### Run in order: create data -> execute operations -> verify
+
+@baseUrl = http://localhost:8080
+
+### ============ CUSTOMERS CRUD ============
+
+### Create customer 1
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{
+  "name": "Иван Петров",
+  "email": "ivan@mail.ru",
+  "phone": "+7-912-111-2233"
+}
+
+### Create customer 2
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{
+  "name": "Мария Сидорова",
+  "email": "maria@mail.ru",
+  "phone": "+7-912-222-3344"
+}
+
+### Get all customers
+GET {{baseUrl}}/api/customers
+
+### Get customer by id (use id from create response)
+GET {{baseUrl}}/api/customers/1
+
+### Update customer
+PUT {{baseUrl}}/api/customers/1
+Content-Type: application/json
+
+{
+  "name": "Иван Петров (обновлён)",
+  "email": "ivan.updated@mail.ru",
+  "phone": "+7-912-111-2234"
+}
+
+### ============ MECHANICS CRUD ============
+
+### Create mechanic 1
+POST {{baseUrl}}/api/mechanics
+Content-Type: application/json
+
+{
+  "name": "Сергей Мастеров",
+  "specialization": "Двигатель"
+}
+
+### Create mechanic 2
+POST {{baseUrl}}/api/mechanics
+Content-Type: application/json
+
+{
+  "name": "Ольга Слесарёва",
+  "specialization": "Кузов"
+}
+
+### Get all mechanics
+GET {{baseUrl}}/api/mechanics
+
+### Get mechanic by id
+GET {{baseUrl}}/api/mechanics/1
+
+### Update mechanic
+PUT {{baseUrl}}/api/mechanics/1
+Content-Type: application/json
+
+{
+  "name": "Сергей Мастеров",
+  "specialization": "Двигатель и трансмиссия"
+}
+
+### ============ PARTS CRUD ============
+
+### Create part 1
+POST {{baseUrl}}/api/parts
+Content-Type: application/json
+
+{
+  "name": "Масло моторное 5W-40",
+  "price": 3500.00,
+  "quantity": 20
+}
+
+### Create part 2
+POST {{baseUrl}}/api/parts
+Content-Type: application/json
+
+{
+  "name": "Фильтр воздушный",
+  "price": 1200.00,
+  "quantity": 15
+}
+
+### Create part 3
+POST {{baseUrl}}/api/parts
+Content-Type: application/json
+
+{
+  "name": "Тормозные колодки",
+  "price": 4500.00,
+  "quantity": 8
+}
+
+### Get all parts
+GET {{baseUrl}}/api/parts
+
+### Get part by id
+GET {{baseUrl}}/api/parts/1
+
+### Update part
+PUT {{baseUrl}}/api/parts/1
+Content-Type: application/json
+
+{
+  "name": "Масло моторное 5W-40 (премиум)",
+  "price": 3800.00,
+  "quantity": 25
+}
+
+### ============ VEHICLES CRUD ============
+
+### Create vehicle (ownerId = 1, customer must exist)
+POST {{baseUrl}}/api/vehicles
+Content-Type: application/json
+
+{
+  "plateNumber": "А123БВ777",
+  "model": "Toyota Camry",
+  "year": 2020,
+  "ownerId": 1
+}
+
+### Create vehicle 2
+POST {{baseUrl}}/api/vehicles
+Content-Type: application/json
+
+{
+  "plateNumber": "В456ГД777",
+  "model": "Honda Civic",
+  "year": 2019,
+  "ownerId": 1
+}
+
+### Get all vehicles
+GET {{baseUrl}}/api/vehicles
+
+### Get vehicle by id
+GET {{baseUrl}}/api/vehicles/1
+
+### Get vehicles by owner (business operation)
+GET {{baseUrl}}/api/vehicles/by-owner/1
+
+### Update vehicle
+PUT {{baseUrl}}/api/vehicles/1
+Content-Type: application/json
+
+{
+  "plateNumber": "А123БВ777",
+  "model": "Toyota Camry",
+  "year": 2021,
+  "ownerId": 1
+}
+
+### ============ SERVICE ORDERS CRUD ============
+
+### Create service order (vehicleId=1, customerId=1, mechanicId=1, partIds=[1,2])
+POST {{baseUrl}}/api/service-orders
+Content-Type: application/json
+
+{
+  "vehicleId": 1,
+  "customerId": 1,
+  "mechanicId": 1,
+  "partIds": [1, 2],
+  "laborCost": 5000.00,
+  "requiredTasksCompleted": false
+}
+
+### Create service order 2 (without parts)
+POST {{baseUrl}}/api/service-orders
+Content-Type: application/json
+
+{
+  "vehicleId": 2,
+  "customerId": 1,
+  "mechanicId": 1,
+  "laborCost": 3000.00,
+  "requiredTasksCompleted": true
+}
+
+### Get all service orders
+GET {{baseUrl}}/api/service-orders
+
+### Get service order by id
+GET {{baseUrl}}/api/service-orders/1
+
+### Update service order
+PUT {{baseUrl}}/api/service-orders/1
+Content-Type: application/json
+
+{
+  "vehicleId": 1,
+  "customerId": 1,
+  "mechanicId": 2,
+  "partIds": [1, 2],
+  "laborCost": 5500.00,
+  "requiredTasksCompleted": true
+}
+
+### ============ BUSINESS OPERATIONS ============
+
+### 1. Calculate order total (parts cost + labor)
+GET {{baseUrl}}/api/service-orders/1/total
+
+### 2. Add parts to order (decreases stock, single transaction)
+POST {{baseUrl}}/api/service-orders/2/parts
+Content-Type: application/json
+
+[1, 3]
+
+### 3. Get customer service history
+GET {{baseUrl}}/api/service-orders/by-customer/1
+
+### 4. Get mechanic's open orders (workload)
+GET {{baseUrl}}/api/service-orders/by-mechanic/1/open
+
+### 5. Close order (requiredTasksCompleted must be true)
+PUT {{baseUrl}}/api/service-orders/1/close
+
+### Verify: Get order total after close
+GET {{baseUrl}}/api/service-orders/1/total
+
+### Verify: Get mechanic's open orders (order 1 should be closed now)
+GET {{baseUrl}}/api/service-orders/by-mechanic/1/open
+
+### ============ DELETE (cleanup) ============
+
+### Delete service order
+DELETE {{baseUrl}}/api/service-orders/2
+
+### Delete vehicle
+DELETE {{baseUrl}}/api/vehicles/2
+
+### Delete part
+DELETE {{baseUrl}}/api/parts/3
+
+### Delete mechanic
+DELETE {{baseUrl}}/api/mechanics/2
+
+### Delete customer
+DELETE {{baseUrl}}/api/customers/2

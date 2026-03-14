@@ -1,0 +1,35 @@
+### Car Service PO4 - HTTP-запросы с Basic Auth
+### Базовый URL и креды (поменяй после регистрации)
+@baseUrl = http://localhost:8080
+@username = admin
+@password = SecurePass1!
+
+### ============ 1. СНАЧАЛА: Регистрация (без авторизации) ============
+POST {{baseUrl}}/api/register
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}",
+  "email": "admin@mail.ru",
+  "role": "ADMIN"
+}
+
+### ============ CUSTOMERS (нужен Basic Auth) ============
+# В REST Client: нажми "Send Request" - в диалоге выбери Basic Auth, введи admin / SecurePass1!
+# Либо используй Postman с коллекцией Car Service PO4
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{
+  "name": "Иван Петров",
+  "email": "ivan@mail.ru",
+  "phone": "+7-912-111-2233"
+}
+
+###
+GET {{baseUrl}}/api/customers
+
+### ============ PARTS ============
+###
+GET {{baseUrl}}/api/parts
