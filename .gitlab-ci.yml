@@ -1,0 +1,41 @@
+stages:
+  - build
+  - publish
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+
+build:
+  stage: build
+  image: maven:3.9-eclipse-temurin-17
+  cache:
+    key: "${CI_COMMIT_REF_SLUG}"
+    paths:
+      - .m2/repository
+  variables:
+    DB_URL: "jdbc:h2:mem:testdb"
+    DB_USERNAME: "sa"
+    DB_PASSWORD: ""
+    JWT_SECRET: "test-secret-key-for-ci-must-be-at-least-256-bits"
+  script:
+    - cd demo
+    - mvn compile -q
+    - mvn test -q
+    - mvn package -DskipTests -q
+  artifacts:
+    name: "car-service-${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - demo/target/*.jar
+
+publish:
+  stage: publish
+  image: curlimages/curl:latest
+  needs:
+    - build
+  script:
+    - JAR=$(ls demo/target/*.jar | head -1)
+    - |
+      curl --request POST \
+        --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+        --form "file=@${JAR}" \
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/car-service/${CI_COMMIT_REF_SLUG}/${CI_COMMIT_SHORT_SHA}/car-service.jar"

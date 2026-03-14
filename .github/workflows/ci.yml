@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: demo
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Compile
+        run: ./mvnw compile -q
+
+      - name: Test
+        run: ./mvnw test -q
+        env:
+          DB_URL: jdbc:h2:mem:testdb
+          DB_USERNAME: sa
+          DB_PASSWORD:
+          JWT_SECRET: test-secret-key-for-ci-must-be-at-least-256-bits
+
+      - name: Package
+        run: ./mvnw package -DskipTests -q
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: car-service-jar
+          path: demo/target/*.jar
+          retention-days: 30
+
+  # Опционально: deploy job с TLS (keystore из GitHub Secrets)
+  # Раскомментируйте и добавьте Secrets: KEYSTORE_BASE64, KEYSTORE_PASSWORD
+  # deploy-tls:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main'
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: car-service-jar
+  #     - run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore.p12
+  #     - run: java -jar car-service-jar/*.jar --spring.profiles.active=tls ...

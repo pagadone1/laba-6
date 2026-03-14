@@ -50,6 +50,15 @@ DB_PASSWORD=ваш_пароль
 
 Сервис доступен на http://localhost:8080
 
+### TLS (HTTPS)
+См. [docs/TLS-SETUP.md](docs/TLS-SETUP.md): генерация цепочки сертификатов, добавление в доверенные, запуск на https://localhost:8443.
+
+## CI
+- **GitHub**: `.github/workflows/ci.yml` — компиляция, тесты, упаковка, upload-artifact
+- **GitLab**: `.gitlab-ci.yml` — компиляция, тесты, упаковка, загрузка в Package Registry
+
+Keystore и пароль храните в **GitHub Secrets** или **GitLab Variables** (Protected, Masked). В репозитории их не коммитить.
+
 ## Коллекция запросов
 
 - `demo/requests/Car-Service-Postman.json` — коллекция для импорта в Postman (CRUD + 5 бизнес-операций).

@@ -1,0 +1,166 @@
+{
+  "info": {
+    "name": "Car Service PO6",
+    "description": "HTTPS/TLS. Порядок: Register → Login → остальные запросы. Токен сохраняется автоматически.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://localhost:8443" },
+    { "key": "jwtToken", "value": "" },
+    { "key": "refreshToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin123!\",\n  \"email\": \"admin@carservice.ru\",\n  \"role\": \"ADMIN\"\n}" },
+            "url": "{{baseUrl}}/api/register"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const json = pm.response.json();",
+                "const access = json.accessToken || json.access_token;",
+                "const refresh = json.refreshToken || json.refresh_token;",
+                "if (access) pm.collectionVariables.set('jwtToken', access);",
+                "if (refresh) pm.collectionVariables.set('refreshToken', refresh);"
+              ],
+              "type": "text/javascript"
+            }
+          }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin123!\"\n}" },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Refresh",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const json = pm.response.json();",
+                "const access = json.accessToken || json.access_token;",
+                "const refresh = json.refreshToken || json.refresh_token;",
+                "if (access) pm.collectionVariables.set('jwtToken', access);",
+                "if (refresh) pm.collectionVariables.set('refreshToken', refresh);"
+              ],
+              "type": "text/javascript"
+            }
+          }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "url": "{{baseUrl}}/api/auth/refresh"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Create Customer 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Иван Иванов\",\n  \"email\": \"ivan@mail.ru\",\n  \"phone\": \"+7 999 123-45-67\"\n}" },
+            "url": "{{baseUrl}}/api/customers"
+          }
+        },
+        {
+          "name": "Create Customer 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Мария Петрова\",\n  \"email\": \"maria@mail.ru\",\n  \"phone\": \"+7 999 222-33-44\"\n}" },
+            "url": "{{baseUrl}}/api/customers"
+          }
+        },
+        {
+          "name": "Create Customer 3",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwtToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Пётр Сидоров\",\n  \"email\": \"petr@mail.ru\",\n  \"phone\": \"+7 999 555-66-77\"\n}" },
+            "url": "{{baseUrl}}/api/customers"
+          }
+        },
+        { "name": "Get All", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/customers" } },
+        { "name": "Get by ID", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/customers/1" } },
+        { "name": "Update", "request": { "method": "PUT", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Иван Петров\",\n  \"email\": \"ivan@mail.ru\",\n  \"phone\": \"+7 999 111-22-33\"\n}" }, "url": "{{baseUrl}}/api/customers/1" } },
+        { "name": "Delete", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/customers/1" } }
+      ]
+    },
+    {
+      "name": "Mechanics",
+      "item": [
+        { "name": "Create", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Сергей Механиков\",\n  \"specialization\": \"Двигатель\"\n}" }, "url": "{{baseUrl}}/api/mechanics" } },
+        { "name": "Get All", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/mechanics" } },
+        { "name": "Get by ID", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/mechanics/1" } },
+        { "name": "Update", "request": { "method": "PUT", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Сергей Механиков\",\n  \"specialization\": \"Ходовая\"\n}" }, "url": "{{baseUrl}}/api/mechanics/1" } },
+        { "name": "Delete", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/mechanics/1" } }
+      ]
+    },
+    {
+      "name": "Parts",
+      "item": [
+        { "name": "Create", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Фильтр масляный\",\n  \"price\": 500,\n  \"quantity\": 20\n}" }, "url": "{{baseUrl}}/api/parts" } },
+        { "name": "Get All", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/parts" } },
+        { "name": "Get by ID", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/parts/1" } },
+        { "name": "Update", "request": { "method": "PUT", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Фильтр масляный\",\n  \"price\": 550,\n  \"quantity\": 15\n}" }, "url": "{{baseUrl}}/api/parts/1" } },
+        { "name": "Delete", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/parts/1" } }
+      ]
+    },
+    {
+      "name": "Vehicles",
+      "item": [
+        { "name": "Create", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"plateNumber\": \"А123БВ777\",\n  \"model\": \"Toyota Camry\",\n  \"year\": 2020,\n  \"ownerId\": 1\n}" }, "url": "{{baseUrl}}/api/vehicles" } },
+        { "name": "Get All", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/vehicles" } },
+        { "name": "Get by ID", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/vehicles/1" } },
+        { "name": "Get by Owner", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/vehicles/by-owner/1" } },
+        { "name": "Update", "request": { "method": "PUT", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"plateNumber\": \"А123БВ777\",\n  \"model\": \"Toyota Camry\",\n  \"year\": 2021,\n  \"ownerId\": 1\n}" }, "url": "{{baseUrl}}/api/vehicles/1" } },
+        { "name": "Delete", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/vehicles/1" } }
+      ]
+    },
+    {
+      "name": "Service Orders",
+      "item": [
+        { "name": "Create", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"vehicleId\": 1,\n  \"customerId\": 1,\n  \"mechanicId\": 1,\n  \"partIds\": [1],\n  \"laborCost\": 3000,\n  \"requiredTasksCompleted\": false\n}" }, "url": "{{baseUrl}}/api/service-orders" } },
+        { "name": "Get All", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/service-orders" } },
+        { "name": "Get by ID", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/service-orders/1" } },
+        { "name": "Get Total", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/service-orders/1/total" } },
+        { "name": "Add Parts", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "[1, 2]" }, "url": "{{baseUrl}}/api/service-orders/1/parts" } },
+        { "name": "Close", "request": { "method": "PUT", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/service-orders/1/close" } },
+        { "name": "By Customer", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/service-orders/by-customer/1" } },
+        { "name": "Open by Mechanic", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/service-orders/by-mechanic/1/open" } },
+        { "name": "Update", "request": { "method": "PUT", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"vehicleId\": 1,\n  \"customerId\": 1,\n  \"mechanicId\": 1,\n  \"partIds\": [1],\n  \"laborCost\": 3500,\n  \"requiredTasksCompleted\": true\n}" }, "url": "{{baseUrl}}/api/service-orders/1" } },
+        { "name": "Delete", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{jwtToken}}" } ], "url": "{{baseUrl}}/api/service-orders/1" } }
+      ]
+    }
+  ]
+}

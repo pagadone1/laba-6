@@ -1,0 +1,30 @@
+# Секреты и сертификаты — НИКОГДА не коммитить!
+*.key
+*.p12
+*.jks
+*.keystore
+**/certs/*.crt
+**/certs/*.key
+**/certs/*.p12
+**/certs/*.csr
+**/certs/*.srl
+**/certs/fullchain.crt
+.env
+*.pem
+
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+!**/src/main/**/existing.jar
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
