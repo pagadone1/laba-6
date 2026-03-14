@@ -18,16 +18,14 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Verify structure
-        run: |
-          ls -la
-          ls -la demo/ 2>/dev/null || echo "demo folder missing or empty"
-
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: Fix mvnw permissions
+        run: chmod +x mvnw
 
       - name: Compile
         run: ./mvnw compile -q
