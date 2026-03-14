@@ -23,8 +23,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'maven'
-          cache-dependency-path: demo/pom.xml
 
       - name: Compile
         run: ./mvnw compile -q
